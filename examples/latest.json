@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-11-19T08:15:00Z",
+  "accounts": {
+    "site": {
+      "kind": "json",
+      "status": "ok",
+      "data": {
+        "visits_7d": 4820,
+        "visits_prev_7d": 4100,
+        "weekly_visits": [
+          2100,
+          2600,
+          2450,
+          3100,
+          3500,
+          3900,
+          4100,
+          4820
+        ],
+        "impressions_7d": 18400,
+        "impressions_prev_7d": 14900,
+        "clicks_7d": 512,
+        "clicks_prev_7d": 431,
+        "weekly_clicks": [
+          120,
+          180,
+          210,
+          260,
+          330,
+          390,
+          431,
+          512
+        ],
+        "through": "11/18"
+      }
+    },
+    "yt-me": {
+      "kind": "youtube",
+      "status": "ok",
+      "data": {
+        "followers": 1312,
+        "views": 88400,
+        "videos": 42
+      }
+    },
+    "threads-me": {
+      "kind": "threads",
+      "status": "ok",
+      "data": {
+        "followers": 2398,
+        "recent_views": null
+      }
+    },
+    "x-me": {
+      "kind": "x",
+      "status": "error",
+      "error": "followers not found on rendered page (login wall?)",
+      "stale_since": "2026-11-19T06:00:00Z",
+      "data": {
+        "followers": 904,
+        "following": 180
+      }
+    }
+  },
+  "days": {
+    "2026-11-19": {
+      "yt-me": {
+        "followers": 1312
+      },
+      "threads-me": {
+        "followers": 2398
+      },
+      "x-me": {
+        "followers": 904
+      }
+    },
+    "2026-11-12": {
+      "yt-me": {
+        "followers": 1240
+      },
+      "threads-me": {
+        "followers": 2150
+      },
+      "x-me": {
+        "followers": 910
+      }
+    }
+  }
+}

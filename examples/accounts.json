@@ -1,0 +1,43 @@
+{
+  "_doc": "Accounts the collector fetches and the tiles show. Groups: json (your own stats endpoint: site traffic, search), youtube (channel id), threads / x (handle). Upload with ./lamp.sh push-config; no redeploy.",
+  "json": [
+    {
+      "id": "site",
+      "label": "Website",
+      "url": "https://stats.example.com/api/summary?days=7",
+      "auth_secret": "SITE_API_TOKEN",
+      "fields": {
+        "visits_7d": "traffic.visits",
+        "visits_prev_7d": "traffic.visits_prev",
+        "weekly_visits": "traffic.weekly",
+        "impressions_7d": "search.impressions",
+        "impressions_prev_7d": "search.impressions_prev",
+        "clicks_7d": "search.clicks",
+        "clicks_prev_7d": "search.clicks_prev",
+        "weekly_clicks": "search.weekly",
+        "through": "through"
+      }
+    }
+  ],
+  "youtube": [
+    {
+      "id": "yt-me",
+      "label": "Me",
+      "channel": "UCxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  ],
+  "threads": [
+    {
+      "id": "threads-me",
+      "label": "Me",
+      "handle": "your.handle"
+    }
+  ],
+  "x": [
+    {
+      "id": "x-me",
+      "label": "Me",
+      "handle": "your_handle"
+    }
+  ]
+}

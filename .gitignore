@@ -1,0 +1,8 @@
+config/*.json
+data/
+out/
+worker/node_modules/
+worker/wrangler.jsonc
+worker/.wrangler/
+__pycache__/
+.DS_Store

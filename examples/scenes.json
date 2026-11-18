@@ -1,0 +1,79 @@
+{
+  "_doc": "Screens 1-3 show `fixed`; screens 4-5 show two tiles drawn at random from `pool`, never the same pair twice in a row, redrawn every rotate.every_minutes (or ./lamp.sh next). Tiles: claude, stats, big, rows, total, pending.",
+  "theme": "night",
+  "rotate": {
+    "auto": true,
+    "every_minutes": 5
+  },
+  "fixed": [
+    {
+      "tile": "stats",
+      "account": "site",
+      "title": "Website",
+      "main": {
+        "label": "Visits 7D",
+        "field": "visits_7d"
+      },
+      "second": {
+        "label": "Impr.",
+        "field": "impressions_7d",
+        "prev": "impressions_prev_7d"
+      },
+      "bars": "weekly_visits",
+      "note": "through"
+    },
+    {
+      "tile": "total",
+      "title": "Followers",
+      "theme": "poster",
+      "accounts": [
+        "yt-me",
+        "threads-me",
+        "x-me"
+      ]
+    },
+    {
+      "tile": "claude"
+    }
+  ],
+  "pool": [
+    {
+      "id": "seo",
+      "tile": "stats",
+      "account": "site",
+      "title": "Search",
+      "main": {
+        "label": "Clicks 7D",
+        "field": "clicks_7d"
+      },
+      "second": {
+        "label": "Impr.",
+        "field": "impressions_7d",
+        "prev": "impressions_prev_7d"
+      },
+      "bars": "weekly_clicks",
+      "note": "through"
+    },
+    {
+      "id": "youtube",
+      "tile": "big",
+      "account": "yt-me"
+    },
+    {
+      "id": "threads",
+      "tile": "big",
+      "account": "threads-me"
+    },
+    {
+      "id": "x",
+      "tile": "big",
+      "account": "x-me"
+    },
+    {
+      "id": "instagram",
+      "tile": "pending",
+      "title": "Instagram",
+      "pending": "Not set up"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+// Copy to wrangler.jsonc, fill in the KV id (`npx wrangler kv namespace create KV`), then deploy.
+{
+  "name": "times-gate-collector",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "browser": { "binding": "BROWSER" },
+  "triggers": { "crons": ["*/15 * * * *"] },
+  "kv_namespaces": [{ "binding": "KV", "id": "<your KV namespace id>" }]
+  // Secrets (npx wrangler secret put NAME): PULL_TOKEN, plus each auth_secret named in accounts.json.
+}

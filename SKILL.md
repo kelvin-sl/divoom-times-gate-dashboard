@@ -35,6 +35,6 @@ renders once a minute via launchd. Read `README.md` for the full architecture be
 
 - Keep the Mac side one-shot: no loops, no daemons. Push with `/usr/bin/curl` (launchd Python is
   blocked from the LAN on macOS).
-- Browser sources (Threads, X) cost Browser Rendering minutes: free plan is 10 min/day.
+- Browser sources (Threads, X) cost Browser Run minutes: free plan is 10 min/day.
 - Keep 1.5–4.5 s random gaps between scraping requests; only scrape the user's own accounts.
 - Never write tokens into the repo; they live in the env file and Worker secrets.

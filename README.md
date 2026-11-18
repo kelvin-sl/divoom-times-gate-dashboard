@@ -32,7 +32,7 @@ The image above comes from `python3 dash.py --demo`, which uses the made-up data
 
 The work is split this way for four reasons:
 
-- **Collection runs in the cloud.** Numbers keep coming in while your computer is off or asleep, so there is always a day to compare against for "a week ago". Threads and X only show their counts after JavaScript runs, and Cloudflare Browser Rendering on the free plan can run it.
+- **Collection runs in the cloud.** Numbers keep coming in while your computer is off or asleep, so there is always a day to compare against for "a week ago". Threads and X only show their counts after JavaScript runs, and Cloudflare Browser Run (formerly Browser Rendering) on the free plan can run it.
 - **Rendering runs locally.** The lamp only accepts requests from the LAN, and your Claude Code transcripts exist only on your computer.
 - **Nothing stays resident.** Each run does its work and exits. With the Claude scan cached, a run takes 0.2 s and 47 MB. The full Claude scan happens every 5 minutes and took about 5.7 s and 61 MB. Nothing uses memory between runs.
 - **The data is a file in a folder.** `data/latest.json` is the latest snapshot, so other tools can read it directly.
@@ -218,7 +218,7 @@ curl -X POST http://<lamp-ip>/post -d '{"Command":"Draw/GetHttpGifId","LocalToke
 
 - **Python started by launchd can't reach the lamp** (`No route to host`). macOS Local Network privacy blocks it, but the system `/usr/bin/curl` is not affected. That is why `dash.py` pushes images through curl rather than Python's HTTP.
 - **The computer and the lamp may be on different subnets.** Wi-Fi and wired networks are often served by different routers, for example a modem and a mesh router that each hand out addresses. The lamp and the computer need addresses from the same router.
-- **Cloudflare Browser Rendering's free plan allows 10 minutes a day.** Past that it returns 429 until the next UTC day. One pass over a few Threads and X accounts takes about 25 s, so those sources run only on the first cron of every second hour (even UTC hours). The runs in between reuse the last numbers. For more accounts or fresher numbers, change `browserDue` in `parse.js` or move to a paid plan.
+- **Cloudflare Browser Run's free plan allows 10 minutes a day.** Past that it returns 429 until the next UTC day. One pass over a few Threads and X accounts takes about 25 s, so those sources run only on the first cron of every second hour (even UTC hours). The runs in between reuse the last numbers. For more accounts or fresher numbers, change `browserDue` in `parse.js` or move to a paid plan.
 - **Threads and X pages never go network-idle.** Wait for the word "followers" to appear on the page instead.
 - **A manual `/collect` gets cut off early.** A run started by hand inside `waitUntil` stops after about 30 s, while cron runs get longer. To see a full pass, wait for the next cron run.
 - **Threads "recent views" only shows when you are logged in.** Public pages show only the follower count, and this project does not use a logged-in session.

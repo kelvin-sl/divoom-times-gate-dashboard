@@ -31,7 +31,7 @@ export async function youtube(_env, acc) {
 }
 
 // Threads and X render counts with JavaScript, so read them through a headless browser.
-// ctx.pageText(url, marker) is provided by index.js (Cloudflare Browser Rendering).
+// ctx.pageText(url, marker) is provided by index.js (Cloudflare Browser Run).
 export async function threads(_env, acc, ctx) {
   const c = threadsCounts(await ctx.pageText(`https://www.threads.com/@${acc.handle}`, "followers"));
   if (c.followers === null) throw new Error("followers not found on rendered page");

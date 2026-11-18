@@ -54,7 +54,7 @@ export function settle(kind, result, old, prevAt) {
   return cur;
 }
 
-// Browser Rendering on the Workers Free plan allows 10 browser-minutes a day. A pass over a
+// Browser Run (formerly Browser Rendering) on the Workers Free plan allows 10 browser-minutes a day. A pass over a
 // handful of Threads/X profiles takes ~25 s, so browser groups run on the first cron of every
 // second hour (UTC) and other runs carry their last numbers forward.
 export const browserDue = (now = new Date()) => now.getUTCHours() % 2 === 0 && now.getUTCMinutes() < 15;

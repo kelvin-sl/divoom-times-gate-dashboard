@@ -16,7 +16,11 @@ with sync_playwright() as p:
         browser = p.chromium.launch(channel="chrome")
     page = browser.new_page(viewport={"width": 1600, "height": 520}, device_scale_factor=2)
     page.goto((ROOT / "tools" / "preview.html").as_uri())
-    page.wait_for_load_state("load")
+    # Screenshot only once all five tiles have decoded; a missing tile is an error, not a blank screen.
+    page.wait_for_function("[...document.images].every(i => i.complete)")
+    loaded = page.evaluate("[...document.images].filter(i => i.naturalWidth === 128).length")
+    if loaded != 5:
+        raise SystemExit(f"only {loaded}/5 tiles loaded; run `python3 dash.py --demo` first")
     page.locator(".stage").screenshot(path=str(ROOT / "docs" / "preview.png"), omit_background=True)
     browser.close()
 print("wrote docs/preview.png")

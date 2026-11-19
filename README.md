@@ -13,6 +13,28 @@ This turns the five 128×128 screens of a Divoom Times Gate into a desk dashboar
 
 The image above comes from `python3 dash.py --demo`, which uses the made-up data in `examples/`.
 
+## Install with an AI assistant
+
+Use an assistant with terminal and local-file access, such as Claude Code or Codex. Paste this:
+
+```text
+Help me set up this Divoom Times Gate dashboard on my Mac:
+https://github.com/kelvin-sl/divoom-times-gate-dashboard
+
+Clone the repository into a local project folder, then read README.md and SKILL.md.
+First create a Python virtual environment, install Pillow, run the tests, and show
+me the demo preview. This step needs no lamp or Cloudflare account.
+Then guide me through the lamp setup, asking for missing settings. Have me enter
+tokens locally, and preserve any existing configuration. Set up the optional
+Cloudflare collector only if I choose to use it. Verify each completed step and
+tell me what remains untested.
+```
+
+[SKILL.md](SKILL.md) is the setup guide for the assistant; keep it with the project files.
+For manual installation, follow [Quick start](#quick-start).
+The current setup targets macOS. Website traffic and SEO require a JSON endpoint you provide;
+this repository does not include a GA4 or Search Console connector.
+
 ## Architecture
 
 ```
@@ -43,52 +65,109 @@ If you only want the clock and Claude usage, skip Cloudflare: leave `COLLECTOR_U
 
 - A Divoom Times Gate on the same LAN and subnet as your computer, for example both on `192.168.1.x`.
 - The lamp's IP and its **LocalToken**. Without the token, the lamp answers `DeviceToken is err`.
-- macOS, Python 3.9+ and Pillow (`pip install pillow`). CJK text uses the system PingFang font. On other systems, point `DASH_CJK_FONT` at any CJK font and change the font paths in the theme.
-- For the collector: a Cloudflare account (the free plan is enough) and Node 18+.
+- macOS and Python 3.9+. Install Pillow in the virtual environment below. The renderer uses macOS system fonts, including PingFang for CJK text; the schedule uses launchd. Other operating systems need font and scheduler changes.
+- For the optional collector: a Cloudflare account and Node **22.12.0 or newer**, as required by the Wrangler version in `worker/package-lock.json`. See [Gotchas](#gotchas) for free-plan limits.
 
 ## Quick start
 
 ### 1. Preview locally
 
+No lamp, tokens or Cloudflare account are needed for the demo.
+
 ```sh
 git clone https://github.com/kelvin-sl/divoom-times-gate-dashboard
 cd divoom-times-gate-dashboard
-pip install pillow
-python3 dash.py --demo          # → out/preview.png
-python3 -m unittest discover tests
+python3 -m venv .venv
+.venv/bin/python -m pip install pillow
+.venv/bin/python -m unittest discover tests
+.venv/bin/python dash.py --demo          # → out/preview.png
+open out/preview.png
 ```
 
 ### 2. Push to the lamp
 
 ```sh
 mkdir -p ~/.config/times-gate-dashboard
-cp env.example ~/.config/times-gate-dashboard/env     # set DIVOOM_IP, DIVOOM_TOKEN, PYTHON
-cp examples/scenes.json examples/accounts.json config/  # then put in your own accounts
-./run.sh                                                 # push once
-./install-launchd.sh                                     # then update every minute
+cp -n env.example ~/.config/times-gate-dashboard/env
+chmod 600 ~/.config/times-gate-dashboard/env
+cp -n examples/scenes.json examples/accounts.json config/
+.venv/bin/python -c 'import sys; print(sys.executable)'
 ```
 
-Set `PYTHON` to an absolute path (the output of `which python3`), because launchd does not read your shell profile.
+The copy commands preserve existing files. Edit `~/.config/times-gate-dashboard/env`:
+set `DIVOOM_IP` and `DIVOOM_TOKEN` to your lamp's values, and set `PYTHON` to the full path
+printed above, quoted if it contains spaces. Leave `COLLECTOR_URL` and `PULL_TOKEN` empty
+for this first local update. launchd does not read your shell profile or activate a virtual environment.
+
+```sh
+./run.sh
+```
+
+Check the five screens on the lamp. The clock and local Claude usage should appear;
+tiles without collected data show placeholders. Once this works, enable the schedule:
+
+```sh
+./install-launchd.sh
+```
+
+It runs every minute and logs to `~/Library/Logs/times-gate-dashboard.log`.
+To remove the schedule, run `./install-launchd.sh uninstall`.
 
 ### 3. Deploy the collector (Cloudflare Worker)
 
+Skip this section if you only want local Claude usage and the clock. Otherwise, finish step 2 first.
+Edit `config/accounts.json`: replace example accounts with your own and remove sources you will not use.
+Website metrics need your own JSON endpoint; see [Connecting website traffic and SEO](#connecting-website-traffic-and-seo).
+Keep account IDs consistent with `config/scenes.json`.
+
+From the repository root:
+
 ```sh
 cd worker
-npm install
-cp wrangler.example.jsonc wrangler.jsonc
+node --version                             # must be >= 22.12.0
+npm ci
+npm test
+cp -n wrangler.example.jsonc wrangler.jsonc
 npx wrangler login
-npx wrangler kv namespace create KV         # put the id into wrangler.jsonc
-openssl rand -hex 24                        # make a token
-npx wrangler secret put PULL_TOKEN          # paste it; use the same value for PULL_TOKEN in the env file
-npx wrangler deploy                         # prints https://times-gate-collector.<you>.workers.dev
-cd .. && ./lamp.sh push-config              # upload config/accounts.json to KV
+npx wrangler kv namespace create KV
 ```
 
-Put that URL in `COLLECTOR_URL` in the env file. Data appears after the first cron run, within 15 minutes. Threads and X are read only every two hours (see [Gotchas](#gotchas)). To change accounts later, edit `config/accounts.json` and run `./lamp.sh push-config`; you don't need to redeploy.
+Put the returned namespace ID into `kv_namespaces[0].id` in `worker/wrangler.jsonc`.
+For an existing installation, keep its namespace ID and skip namespace creation.
+Then, still in `worker/`:
+
+```sh
+openssl rand -hex 24                        # make a token
+npx wrangler secret put PULL_TOKEN          # paste that token when prompted
+```
+
+Save the same token as `PULL_TOKEN` in `~/.config/times-gate-dashboard/env`.
+For each JSON account with `auth_secret`, also create the matching Worker secret, for example
+`npx wrangler secret put SITE_API_TOKEN`, and enter that endpoint's token.
+
+```sh
+npx wrangler deploy                         # prints https://times-gate-collector.<you>.workers.dev
+cd ..
+```
+
+**Before uploading configuration**, put the deployed URL (without a trailing slash) in
+`COLLECTOR_URL` in the env file and check that `PULL_TOKEN` matches the Worker secret.
+
+```sh
+./lamp.sh push-config                       # upload config/accounts.json to KV
+```
+
+Expect `{"ok":true}`. After the next successful cron run (scheduled every 15 minutes),
+`/latest` contains a snapshot and the Mac picks it up on its next pull.
+Threads and X normally refresh every two hours (see [Gotchas](#gotchas)).
+To change accounts later, edit `config/accounts.json` and run `./lamp.sh push-config`; you don't need to redeploy.
 
 These commands trigger a run by hand and help with debugging:
 
 ```sh
+set -a
+. "$HOME/.config/times-gate-dashboard/env"
+set +a
 curl -X POST -H "Authorization: Bearer $PULL_TOKEN" "$COLLECTOR_URL/collect"     # 202, runs in the background
 curl -H "Authorization: Bearer $PULL_TOKEN" "$COLLECTOR_URL/probe?group=threads&handle=your.handle"
 curl -H "Authorization: Bearer $PULL_TOKEN" "$COLLECTOR_URL/last_error"

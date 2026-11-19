@@ -7,19 +7,35 @@ description: Use when someone wants their Divoom Times Gate to show their own nu
 
 Five 128×128 tiles rendered by `dash.py` (Pillow) and pushed over the lamp's LAN API. A Cloudflare
 Worker in `worker/` collects numbers on a cron; the Mac pulls `/latest` once every 5 minutes and
-renders once a minute via launchd. Read `README.md` for the full architecture before changing it.
+renders once a minute via launchd. Read [README.md](README.md) or [README.zh-TW.md](README.zh-TW.md)
+for the installation steps and architecture. Work from the cloned repository root; this guide
+depends on the scripts and examples alongside it.
 
 ## Set up (in this order, confirm each step works before the next)
 
-1. `pip install pillow && python3 dash.py --demo` → open `out/preview.png`; `python3 -m unittest discover tests`.
-2. Ask the user for the lamp IP and LocalToken (never guess; a missing token returns `DeviceToken is err`).
-   Write `~/.config/times-gate-dashboard/env` from `env.example`, `PYTHON` as an absolute path.
-3. Ask which accounts to show: website stats endpoint (URL, which fields), YouTube channel ids,
-   Threads / X handles. Confirm the list with the user before writing `config/accounts.json` and
-   `config/scenes.json` (start from `examples/`).
-4. `./run.sh` once, then `./install-launchd.sh`. Check `~/Library/Logs/times-gate-dashboard.log`.
-5. Collector (optional): follow README "架收集器". Use `/probe?group=…` to test one account
-   before relying on the cron. Then `./lamp.sh push-config`.
+1. Check macOS and Python 3.9+. Create `.venv` with `python3 -m venv .venv`, then run
+   `.venv/bin/python -m pip install pillow`, `.venv/bin/python -m unittest discover tests`,
+   and `.venv/bin/python dash.py --demo`. Show `out/preview.png`. The demo needs no lamp,
+   tokens or cloud account. On another OS, explain that fonts and scheduling need adaptation.
+2. For lamp setup, obtain the IP and have the user enter LocalToken locally (never guess;
+   a missing token returns `DeviceToken is err`). Create `~/.config/times-gate-dashboard/env`
+   from `env.example` if absent, preserve existing settings, and set its permissions to 600.
+   Set `PYTHON` to the absolute `.venv/bin/python` path, quoting paths with spaces.
+3. Copy example account and scene files only if absent. Ask which accounts and tiles the user
+   wants and keep account IDs consistent. Website metrics require the user's own JSON endpoint;
+   there is no built-in GA4 or Search Console connector. Keep the collector URL empty for an
+   initial local-only setup. Render with `.venv/bin/python dash.py` before pushing.
+4. Run `./run.sh` for the lamp setup and check the screens before enabling `./install-launchd.sh`.
+   Check `~/Library/Logs/times-gate-dashboard.log`; uninstall with `./install-launchd.sh uninstall`.
+5. If the user chooses the collector, follow [Deploy the collector](README.md#3-deploy-the-collector-cloudflare-worker).
+   Check Node >=22.12.0, use `npm ci`, run `npm test`, and configure the KV namespace.
+   Replace placeholder accounts and remove unused sources before uploading. Have the user enter
+   `PULL_TOKEN` and any JSON `auth_secret` values locally into the matching Worker secrets.
+   After deployment, set `COLLECTOR_URL` and the matching `PULL_TOKEN` in the local env file
+   **before** running `./lamp.sh push-config`. Expect `{"ok":true}`. Verify `/latest` after a
+   successful cron; a successful bundle or deploy alone does not prove live collection works.
+6. Report which of demo, lamp push, schedule, deployment and live collection were actually verified,
+   and which remain untested. Keep demo-only setup local if that is all the user requested.
 
 ## Change things
 

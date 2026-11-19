@@ -138,7 +138,7 @@ Background write-up: [Turning a Divoom Times Gate into a growth dashboard](https
 
 | What | How | Result (2026-11-19) |
 | :--- | :-- | :------------------ |
-| Rendering | 9 Python tests, including five dotted-frame tiles from a corrupt `latest.json` | Pass |
+| Rendering | 10 Python tests, including a corrupt `latest.json` and Pillow without libraqm; run on macOS in CI | Pass |
 | Rotation | Never repeats the previous pair; no redraw before the interval | Pass |
 | Collector parsing | 6 Node tests: K/M suffixes, login walls, failures keep old data | Pass |
 | Live YouTube read | `sources.youtube` against YouTube's own channel | Subscribers, views, videos |

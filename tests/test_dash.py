@@ -53,6 +53,14 @@ class Render(unittest.TestCase):
         name, imgs = dash.render(EX, EX, claude=CLAUDE, write_state=False)
         self.assertEqual([i.size for i in imgs], [(128, 128)] * 5)
 
+    def test_renders_without_libraqm(self):
+        saved, dash.TNUM = dash.TNUM, None
+        try:
+            _, imgs = dash.render(EX, EX, claude=CLAUDE, write_state=False)
+        finally:
+            dash.TNUM = saved
+        self.assertEqual(len(imgs), 5)
+
     def test_every_pool_tile_renders(self):
         cfg = json.load(open(os.path.join(EX, "scenes.json")))
         for t in cfg["pool"]:

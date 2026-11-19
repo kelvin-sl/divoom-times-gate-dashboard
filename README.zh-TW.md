@@ -127,7 +127,7 @@ https://github.com/kelvin-sl/divoom-times-gate-dashboard
 
 | 項目 | 怎麼驗 | 結果（2026-11-19） |
 | :--- | :----- | :----------------- |
-| 畫圖 | 9 個 Python 測試，包含 `latest.json` 壞掉時仍畫出五格點線框 | 通過 |
+| 畫圖 | 10 個 Python 測試，包含 `latest.json` 壞掉、Pillow 沒有 libraqm 的情況；CI 在 macOS 上跑 | 通過 |
 | 輪播 | 不會連續兩輪同一對；沒到時間不重抽 | 通過 |
 | 收集器解析 | 6 個 Node 測試：K/M 單位、登入牆、失敗沿用舊資料 | 通過 |
 | YouTube 實際讀取 | 用 `sources.youtube` 讀 YouTube 官方頻道 | 取得訂閱、觀看、影片數 |

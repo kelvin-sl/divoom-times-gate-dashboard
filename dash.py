@@ -16,7 +16,10 @@ Outputs  data/state.json (which pool tiles are showing), data/claude.json (5-min
 Nothing keeps running: launchd (or cron) calls run.sh, which calls this once.
 """
 import base64, datetime as dt, glob, io, json, os, random, subprocess, sys, time
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, features
+
+# Tabular digits need libraqm; Pillow wheels without it still render, with proportional digits.
+TNUM = ["tnum"] if features.check("raqm") else None
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 S = 128
@@ -122,7 +125,7 @@ class Tile:
 
     def width_of(self, s, size, weight=400, role="sans", width=None):
         latin, cjk = font(self.face(role), size, weight, width), font("cjk", size, weight)
-        return sum(self.d.textlength(r, font=cjk if k else latin, features=["tnum"]) for k, r in self.runs(s))
+        return sum(self.d.textlength(r, font=cjk if k else latin, features=TNUM) for k, r in self.runs(s))
 
     def text(self, xy, s, size, color="ink", weight=400, anchor="la", role="sans", width=None):
         """Mixed Latin/CJK on one baseline; CJK uses the CJK font and is never condensed."""
@@ -135,8 +138,8 @@ class Tile:
         base = {"t": y + asc, "m": y + asc * 0.36, "s": y}.get(anchor[1], y + asc)
         for k, r in self.runs(s):
             f = cjk if k else latin
-            self.d.text((x, base), r, font=f, fill=fill, anchor="ls", features=["tnum"])
-            x += self.d.textlength(r, font=f, features=["tnum"])
+            self.d.text((x, base), r, font=f, fill=fill, anchor="ls", features=TNUM)
+            x += self.d.textlength(r, font=f, features=TNUM)
         return total
 
     def header(self, platform=None, title=None):
